@@ -1,6 +1,7 @@
 from faster_whisper import WhisperModel
 
-model_size = "tiny.en"
+model_size = "base.en"
+#model_size = "tiny.en"
 
 # Run on GPU with FP16
 # model = WhisperModel(model_size, device="cuda", compute_type="float16")
@@ -10,7 +11,7 @@ model_size = "tiny.en"
 # or run on CPU with INT8
 model = WhisperModel(model_size, device="cpu", compute_type="int8")
 
-segments, info = model.transcribe("audio.mp3", beam_size=5)
+segments, info = model.transcribe("tests/data/hotwords.mp3", beam_size=5)
 
 print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
 
