@@ -58,10 +58,10 @@ def update_plot(frame):
             # if(db_value > -10):
             #     xnum +=1
             #     print(xnum)
-            # print(rms)
+            print(rms)
             if(rms > 1000):
                 xnum +=1
-                print(xnum)
+                #print(xnum)
         
         # Update the plot line
         line.set_ydata(y_data)

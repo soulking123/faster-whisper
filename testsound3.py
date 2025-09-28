@@ -4,8 +4,10 @@ import math
 import time
 import wave
 from faster_whisper import WhisperModel
+import re
 
-model_size = "tiny.en"
+
+model_size = "base.en"
 model = WhisperModel(model_size, device="cpu", compute_type="int8")
 
 
@@ -51,8 +53,8 @@ def listening():
             # if(db_value > -10):
             #     xnum +=1
             #     print(xnum)
-            # print(rms)
-            if(rms > 15000):
+            #print(rms)
+            if(rms > 50000):
                 if not is_talking:
                     print("--- VOICE START ---")
                     is_talking = True
@@ -78,7 +80,8 @@ def listening():
 
                       segments, info = model.transcribe("output.wav", beam_size=5)
                       for segment in segments:
-                        if "hello" in segment.text.lower():
+                        text = segment.text.lower()
+                        if "helloroger" in re.sub(r"[,. ]", "", text):
                             print("Keyword detected!, Waiting for command...")
                         else:
                             print(segment.text)
@@ -86,7 +89,6 @@ def listening():
     except IOError:
         # Handle cases where the audio buffer overflows
         pass
-
 
 try:
     while True:

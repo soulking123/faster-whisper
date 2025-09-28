@@ -2,7 +2,7 @@ import pyaudio
 import wave
 
 CHUNK = 1024 
-WAV_FILE = './voice/000.wav'
+WAV_FILE = './voice/0.wav'
 
 try:
     wf = wave.open(WAV_FILE, 'rb')
@@ -12,8 +12,7 @@ try:
     stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                     channels=wf.getnchannels(),
                     rate=wf.getframerate(),
-                    output=True,
-                    output_device_index=2)
+                    output=True)
 
     # Stream the audio data in chunks
     data = wf.readframes(CHUNK)

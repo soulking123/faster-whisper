@@ -9,7 +9,7 @@ BRIGHTNESS = 0.3    # Set brightness (0.0 to 1.0)
 ORDER = neopixel.GRB # WS2812 generally uses GRB order
 
 # Initialize the strip
-pixels = neopixel.NeoPixel(LED_PIN, PIXEL_COUNT, brightness=BRIGHTNESS, auto_write=False, pixel_order=ORDER)
+pixels = neopixel.NeoPixel(LED_PIN, PIXEL_COUNT, brightness=BRIGHTNESS, auto_write=False, pixel_order = ORDER)
 
 # --- Example Function ---
 def color_wipe(color, wait):

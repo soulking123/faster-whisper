@@ -1,0 +1,65 @@
+import pyaudio									# handle audio in and out
+import numpy as np
+import math
+import time
+import wave										# handle wave file (list of feedback sound are in a .wav format
+import re										# handle the regular expression 
+import RPi.GPIO as GPIO							# handle IO
+from faster_whisper import WhisperModel			# import speech to text model
+
+RELAY1 = 23
+RELAY2 = 24
+RELAY3 = 25
+RELAY = [RELAY1, RELAY2, RELAY3]
+
+soundList = {
+				0: ["/home/admin/faster-whisper/voice/0.wav", ""],
+				1: ["/home/admin/faster-whisper/voice/0.wav", ""],
+				2: ["/home/admin/faster-whisper/voice/0.wav", ""],
+				3: ["/home/admin/faster-whisper/voice/0.wav", ""],
+				4: ["/home/admin/faster-whisper/voice/0.wav", ""],
+				5: ["/home/admin/faster-whisper/voice/0.wav", ""],
+				6: ["/home/admin/faster-whisper/voice/0.wav", ""],
+				7: ["/home/admin/faster-whisper/voice/0.wav", ""],
+				8: ["/home/admin/faster-whisper/voice/0.wav", ""]
+			}
+
+def handleIO(RELAY):
+	GPIO.setmode(GPIO.BCM)
+	# Set all relay to the output mode and set it to HIGH (relay off)
+	for i in RELAY:
+		GPIO.setup(i, GPIO.OUT)
+		GPIO.output(i, GPIO.HIGH)
+		
+def deviceSpeak():
+	try:
+		CHUNK = 1024 
+		wf = wave.open(soundList[0][0], 'rb')
+		p = pyaudio.PyAudio()
+
+		# Configure the stream using properties from the WAV file
+		stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+						channels=wf.getnchannels(),
+						rate=wf.getframerate(),
+						output=True,
+						output_device_index=2)
+
+		# Stream the audio data in chunks
+		data = wf.readframes(CHUNK)
+		while data:
+			stream.write(data)
+			data = wf.readframes(CHUNK)
+
+		# Cleanup
+		stream.stop_stream()
+		stream.close()
+		p.terminate()
+
+	except FileNotFoundError:
+		print(f"Error: WAV file not found at {soundList[0][0]}")
+	except Exception as e:
+		print(f"An error occurred: {e}")
+	
+
+handleIO(RELAY)
+
