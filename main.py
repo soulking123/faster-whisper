@@ -8,6 +8,11 @@ import RPi.GPIO as GPIO							# handle IO
 from faster_whisper import WhisperModel			# import speech to text model
 import board
 import neopixel
+import paho.mqtt.client as mqtt
+
+BROKER_ADRESS = "broker.emqx.io"
+TOPIC = "polibatam/homeassistant/#"
+
 
 RELAY1 = 23
 RELAY2 = 24
@@ -54,6 +59,31 @@ stream = p.open(format=FORMAT,
                 rate=RATE,
                 input=True,
                 frames_per_buffer=CHUNK)
+
+def on_connect(client, userdata, flags, rc):
+    print(f"Connected wirh result code {rc}")
+    client.subscribe(TOPIC)
+    print(f"Subscribed to topic :{TOPIC}")
+
+def on_message(cliend, userData, msg):
+    payload_str = msg.payload.decode("utf-8")
+    print(f"[{msg.topic}] Received message: {payload_str} ")
+    if msg.topic == "polibatam/homeassistant/television":
+        if payload_str == "true":
+            GPIO.output(23, GPIO.LOW)
+        else:
+            GPIO.output(23, GPIO.HIGH)
+    elif msg.topic == "polibatam/homeassistant/fan":
+        if payload_str == "true":
+            GPIO.output(24, GPIO.LOW)
+        else:
+            GPIO.output(24, GPIO.HIGH)
+    elif msg.topic == "polibatam/homeassistant/light":
+        if payload_str == "true":
+            print("ss")
+            GPIO.output(25, GPIO.LOW)
+        else:
+            GPIO.output(25, GPIO.HIGH)
 
 def handleIO(RELAY):
 	GPIO.setmode(GPIO.BCM)
@@ -121,7 +151,7 @@ def listening():
             #     xnum +=1
             #     print(xnum)
             #print(rms)
-            if(rms > 160000):
+            if(rms > 120000):
                 if not is_talking:
                     print("--- VOICE START ---")
                     is_talking = True
@@ -154,27 +184,34 @@ def listening():
                           print(f"processed text = {processedText}")
                           if isAccessed:
                               print(processedText)
+                              isAccessed = False
                               if "turnonthetelevision" in processedText:
-                                  GPIO.output(23, GPIO.LOW)
+                                  #GPIO.output(23, GPIO.LOW)
+                                  client.publish("polibatam/homeassistant/television","true")
                                   deviceSpeak(soundList[3])
                               elif "turnoffthetelevision" in processedText:
-                                  GPIO.output(23, GPIO.HIGH)
+                                  #GPIO.output(23, GPIO.HIGH)
+                                  client.publish("polibatam/homeassistant/television","false")
                                   deviceSpeak(soundList[4])
                               elif "turnonthefan" in processedText:
-                                  GPIO.output(24, GPIO.LOW)
+                                  client.publish("polibatam/homeassistant/fan","true")
+                                  #GPIO.output(24, GPIO.LOW)
                                   deviceSpeak(soundList[5])
                               elif "turnoffthefan" in processedText:
-                                  GPIO.output(24, GPIO.HIGH)
+                                  client.publish("polibatam/homeassistant/fan","false")
+                                  #GPIO.output(24, GPIO.HIGH)
                                   deviceSpeak(soundList[6])
                               elif "turnonthelight" in processedText:
-                                  GPIO.output(25, GPIO.LOW)
+                                  client.publish("polibatam/homeassistant/light","true")
+                                  #GPIO.output(25, GPIO.LOW)
                                   deviceSpeak(soundList[7])
                               elif "turnofthelight" in processedText:
-                                  GPIO.output(25, GPIO.HIGH)
+                                  client.publish("polibatam/homeassistant/light","false")
+                                  #GPIO.output(25, GPIO.HIGH)
                                   deviceSpeak(soundList[8])
                               else:
                                   deviceSpeak(soundList[2])
-                              isAccessed = False
+                                  isAccessed = True
                           elif "helloroger" in processedText:
                               deviceSpeak(soundList[1])
                               isAccessed = True
@@ -193,6 +230,11 @@ time.sleep(3)
 frames = []
 
 handleIO(RELAY)
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
+client.on_connect = on_connect
+client.on_message = on_message
+client.connect(BROKER_ADRESS, 1883, 68)
+client.loop_start()
 
 deviceLED((0, 255, 0), 0.05) 
 stream.stop_stream()
@@ -203,5 +245,6 @@ try:
     while True:
         listening()
 except KeyboardInterrupt:
-    pass
+    client.loop_stop()
+    client.disconnect()
 
