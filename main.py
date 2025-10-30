@@ -147,7 +147,9 @@ def listening():
     try:
         data = stream.read(CHUNK, exception_on_overflow=False)
         audio_data = np.frombuffer(data, dtype=np.int16)
-        
+        #ser.write("AC_ON25".encode())
+        #print("acon")
+        #time.sleep(2)
         # --- Perform FFT ---
         # Only perform FFT if data is present
         if audio_data.size > 0:
@@ -219,16 +221,22 @@ def listening():
                                   client.publish("polibatam/homeassistant/light","false")
                                   #GPIO.output(25, GPIO.HIGH)
                                   deviceSpeak(soundList[8])
-							  elif "settheairconditionertonormal" in processedText:
-								  message_to_send = "AC_ON25"
-								  ser.write(message_to_send.encode()) 
-								  deviceSpeak(soundList[9])
-							  elif "settheairconditionertocool" in processedText:
-								  deviceSpeak(soundList[10])
-							  elif "settheairconditionertofreezing" in processedText:
-								  deviceSpeak(soundList[11])
-							  elif "turnofftheairconditioner" in processedText:
-								  deviceSpeak(soundList[12])
+                              elif "turnontheairconditioner" in processedText:
+                                  message_to_send = "AC_ON25"
+                                  ser.write(message_to_send.encode()) 
+                                  deviceSpeak(soundList[9])
+                              elif "airconditionalcool" in processedText:
+                                  message_to_send = "AC_ON20"
+                                  ser.write(message_to_send.encode())
+                                  deviceSpeak(soundList[10])
+                              elif "airconditionerfreezing" in processedText:
+                                  message_to_send = "AC_ON16"
+                                  ser.write(message_to_send.encode())
+                                  deviceSpeak(soundList[11])
+                              elif "turnofftheairconditioner" in processedText:
+                                  message_to_send = "AC_OFF"
+                                  ser.write(message_to_send.encode())
+                                  deviceSpeak(soundList[12])
 								  
                               else:
                                   deviceSpeak(soundList[2])
@@ -263,7 +271,7 @@ deviceSpeak(soundList[0])
 stream.start_stream()
 
 try:
-	ser = serial.Serial(
+    ser = serial.Serial(
         port=PORT,
         baudrate=BAUD_RATE,
         parity=serial.PARITY_NONE,
@@ -271,7 +279,7 @@ try:
         bytesize=serial.EIGHTBITS,
         timeout=TIMEOUT
     )
-	print(f"Connected to {PORT} at {BAUD_RATE} baud.")
+    print(f"Connected to {PORT} at {BAUD_RATE} baud.")
     while True:
         listening()
 except KeyboardInterrupt:
