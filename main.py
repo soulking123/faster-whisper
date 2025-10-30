@@ -9,6 +9,12 @@ from faster_whisper import WhisperModel			# import speech to text model
 import board
 import neopixel
 import paho.mqtt.client as mqtt
+import serial 
+
+PORT = "/dev/ttyUSB0"
+BAUD_RATE = 115200
+
+TIMEOUT = 1000
 
 BROKER_ADRESS = "broker.emqx.io"
 TOPIC = "polibatam/homeassistant/#"
@@ -214,6 +220,8 @@ def listening():
                                   #GPIO.output(25, GPIO.HIGH)
                                   deviceSpeak(soundList[8])
 							  elif "settheairconditionertonormal" in processedText:
+								  message_to_send = "AC_ON25"
+								  ser.write(message_to_send.encode()) 
 								  deviceSpeak(soundList[9])
 							  elif "settheairconditionertocool" in processedText:
 								  deviceSpeak(soundList[10])
@@ -255,6 +263,15 @@ deviceSpeak(soundList[0])
 stream.start_stream()
 
 try:
+	ser = serial.Serial(
+        port=PORT,
+        baudrate=BAUD_RATE,
+        parity=serial.PARITY_NONE,
+        stopbits=serial.STOPBITS_ONE,
+        bytesize=serial.EIGHTBITS,
+        timeout=TIMEOUT
+    )
+	print(f"Connected to {PORT} at {BAUD_RATE} baud.")
     while True:
         listening()
 except KeyboardInterrupt:
