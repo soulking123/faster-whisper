@@ -225,7 +225,7 @@ def listening():
                                   message_to_send = "AC_ON25"
                                   ser.write(message_to_send.encode()) 
                                   deviceSpeak(soundList[9])
-                              elif "airconditionalcool" in processedText:
+                              elif "airconditionercool" in processedText:
                                   message_to_send = "AC_ON20"
                                   ser.write(message_to_send.encode())
                                   deviceSpeak(soundList[10])
