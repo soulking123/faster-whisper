@@ -28,7 +28,11 @@ soundList = {
 				5: ["/home/admin/faster-whisper/voice/5.wav", "Turning on the fan"],
 				6: ["/home/admin/faster-whisper/voice/6.wav", "Turning off the fan"],
 				7: ["/home/admin/faster-whisper/voice/7.wav", "Turning on the light"],
-				8: ["/home/admin/faster-whisper/voice/8.wav", "Turning off the light"]
+				8: ["/home/admin/faster-whisper/voice/8.wav", "Turning off the light"],
+				9: ["/home/admin/faster-whisper/voice/9.wav", "Turn on the air conditioner and set it to normal"],
+				10: ["/home/admin/faster-whisper/voice/10.wav", "Turn on the air conditioner and set it to cool"],
+				11: ["/home/admin/faster-whisper/voice/11.wav", "Turn on the air conditioner and set it to freezing"],
+				12: ["/home/admin/faster-whisper/voice/12.wav", "Turn off the air conditioner"],
 			}
 			
 
@@ -209,6 +213,15 @@ def listening():
                                   client.publish("polibatam/homeassistant/light","false")
                                   #GPIO.output(25, GPIO.HIGH)
                                   deviceSpeak(soundList[8])
+							  elif "settheairconditionertonormal" in processedText:
+								  deviceSpeak(soundList[9])
+							  elif "settheairconditionertocool" in processedText:
+								  deviceSpeak(soundList[10])
+							  elif "settheairconditionertofreezing" in processedText:
+								  deviceSpeak(soundList[11])
+							  elif "turnofftheairconditioner" in processedText:
+								  deviceSpeak(soundList[12])
+								  
                               else:
                                   deviceSpeak(soundList[2])
                                   isAccessed = True
