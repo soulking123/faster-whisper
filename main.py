@@ -94,6 +94,11 @@ def on_message(cliend, userData, msg):
             GPIO.output(25, GPIO.LOW)
         else:
             GPIO.output(25, GPIO.HIGH)
+    elif msg.topic == "polibatam/homeassistant/airconditioner":
+        if payload_str == "true":
+            ser.write("AC_ON25".encode())
+        else:
+            ser.write("AC_OFF".encode())
 
 def handleIO(RELAY):
 	GPIO.setmode(GPIO.BCM)
@@ -163,7 +168,7 @@ def listening():
             #     xnum +=1
             #     print(xnum)
             #print(rms)
-            if(rms > 120000):
+            if(rms > 100000):
                 if not is_talking:
                     print("--- VOICE START ---")
                     is_talking = True
@@ -217,7 +222,7 @@ def listening():
                                   client.publish("polibatam/homeassistant/light","true")
                                   #GPIO.output(25, GPIO.LOW)
                                   deviceSpeak(soundList[7])
-                              elif "turnofthelight" in processedText:
+                              elif "turnoffthelight" in processedText:
                                   client.publish("polibatam/homeassistant/light","false")
                                   #GPIO.output(25, GPIO.HIGH)
                                   deviceSpeak(soundList[8])
