@@ -39,6 +39,8 @@ soundList = {
 				10: ["/home/admin/faster-whisper/voice/10.wav", "Turn on the air conditioner and set it to cool"],
 				11: ["/home/admin/faster-whisper/voice/11.wav", "Turn on the air conditioner and set it to freezing"],
 				12: ["/home/admin/faster-whisper/voice/12.wav", "Turn off the air conditioner"],
+                                13: ["/home/admin/faster-whisper/voice/13.wav", "Switch to the previous channel"],
+                                14: ["/home/admin/faster-whisper/voice/14.wav", "Switch to the next channel"]
 			}
 			
 
@@ -81,6 +83,8 @@ def on_message(cliend, userData, msg):
     if msg.topic == "polibatam/homeassistant/television":
         if payload_str == "true":
             GPIO.output(23, GPIO.LOW)
+            time.sleep(25)
+            ser.write("TV_SELECTCHANNEL".encode())
         else:
             GPIO.output(23, GPIO.HIGH)
     elif msg.topic == "polibatam/homeassistant/fan":
@@ -90,7 +94,6 @@ def on_message(cliend, userData, msg):
             GPIO.output(24, GPIO.HIGH)
     elif msg.topic == "polibatam/homeassistant/light":
         if payload_str == "true":
-            print("ss")
             GPIO.output(25, GPIO.LOW)
         else:
             GPIO.output(25, GPIO.HIGH)
@@ -168,7 +171,7 @@ def listening():
             #     xnum +=1
             #     print(xnum)
             #print(rms)
-            if(rms > 100000):
+            if(rms > 40000):
                 if not is_talking:
                     print("--- VOICE START ---")
                     is_talking = True
@@ -204,8 +207,12 @@ def listening():
                               isAccessed = False
                               if "turnonthetelevision" in processedText:
                                   #GPIO.output(23, GPIO.LOW)
-                                  client.publish("polibatam/homeassistant/television","true")
                                   deviceSpeak(soundList[3])
+                                  client.publish("polibatam/homeassistant/television","true")
+                                  #deviceSpeak(soundList[3])
+                                  #time.sleep(25)
+                                  ser.write("TV_SELECTCHANNEL".encode())
+                                  #deviceSpeak(soundList[3])
                               elif "turnoffthetelevision" in processedText:
                                   #GPIO.output(23, GPIO.HIGH)
                                   client.publish("polibatam/homeassistant/television","false")
@@ -228,7 +235,7 @@ def listening():
                                   deviceSpeak(soundList[8])
                               elif "turnontheairconditioner" in processedText:
                                   message_to_send = "AC_ON25"
-                                  ser.write(message_to_send.encode()) 
+                                  ser.write(message_to_send.encode())
                                   deviceSpeak(soundList[9])
                               elif "airconditionercool" in processedText:
                                   message_to_send = "AC_ON20"
@@ -242,7 +249,12 @@ def listening():
                                   message_to_send = "AC_OFF"
                                   ser.write(message_to_send.encode())
                                   deviceSpeak(soundList[12])
-								  
+                              elif "nextchannel" in processedText:
+                                  ser.write("TV_NEXT".encode())
+                                  deviceSpeak(soundList[14])
+                              elif "previouschannel" in processedText:
+                                  ser.write("TV_PREVIOUS".encode())
+                                  deviceSpeak(soundList[13])
                               else:
                                   deviceSpeak(soundList[2])
                                   isAccessed = True
