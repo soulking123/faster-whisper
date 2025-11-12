@@ -234,18 +234,22 @@ def listening():
                                   #GPIO.output(25, GPIO.HIGH)
                                   deviceSpeak(soundList[8])
                               elif "turnontheairconditioner" in processedText:
+                                  client.publish("polibatam/homeassistant/airconditioner", "true")
                                   message_to_send = "AC_ON25"
                                   ser.write(message_to_send.encode())
                                   deviceSpeak(soundList[9])
                               elif "airconditionercool" in processedText:
+                                  client.publish("polibatam/homeassistant/airconditioner", "true")
                                   message_to_send = "AC_ON20"
                                   ser.write(message_to_send.encode())
                                   deviceSpeak(soundList[10])
                               elif "airconditionerfreezing" in processedText:
+                                  client.publish("polibatam/homeassistant/airconditioner", "true")
                                   message_to_send = "AC_ON16"
                                   ser.write(message_to_send.encode())
                                   deviceSpeak(soundList[11])
                               elif "turnofftheairconditioner" in processedText:
+                                  client.publish("polibatam/homeassistant/airconditioner", "false")
                                   message_to_send = "AC_OFF"
                                   ser.write(message_to_send.encode())
                                   deviceSpeak(soundList[12])
